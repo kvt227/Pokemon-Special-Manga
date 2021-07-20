@@ -30,6 +30,8 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
       yield* _mapReadMangNextChapter(event);
     } else if (event is ReadMangaPreviousChapter) {
       yield* _mapReadMangaPreviousChapter(event);
+    } else if (event is ReadMangaSubmitChapter) {
+      yield* _mapReadMangSubmitChapter(event);
     }
   }
 
@@ -86,6 +88,19 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
     }
   }
 
+  Stream<ReadMangaState> _mapReadMangSubmitChapter(
+      ReadMangaSubmitChapter event,
+      ) async* {
+
+    try {
+      chapter = event.chapter;
+      await getImage();
+      yield ReadMangaDataFetched();
+    } catch (ex) {
+      yield ReadMangaDataFailed(ex: ex);
+    }
+  }
+
   Future<void> getImage () async {
     final client = Client();
 
@@ -111,7 +126,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
           }
         } catch (e) {}
       }
-      print('Count image: ${listImg.length}');
+      // print('Count image: ${listImg.length}');
     }
     finally {
       client.close();

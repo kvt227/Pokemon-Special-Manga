@@ -10,18 +10,22 @@ class ReadMangaScreen extends StatefulWidget {
 }
 
 class _ReadMangaScreenState extends State<ReadMangaScreen> {
+
   ReadMangaBloc _readMangaBloc;
+  // final txtChapter = TextEditingController();
 
   @override
   void initState() {
     _readMangaBloc = BlocProvider.of<ReadMangaBloc>(context);
     _readMangaBloc.add(ReadMangaStarted());
+    // txtChapter.addListener(_changeChapter);
     _fetchData();
     super.initState();
   }
 
   @override
   void dispose() {
+    // txtChapter.dispose();
     super.dispose();
   }
 
@@ -33,8 +37,10 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 45,
           backgroundColor: Colors.white,
-          title: const Center(child: Text('Pokemon Special Manga'))),
+          title: const Center(child: Text('Pokemon Special Manga'))
+      ),
       body: Container(
         color: Colors.white,
         child: BlocConsumer<ReadMangaBloc, ReadMangaState>(
@@ -69,12 +75,24 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                               });
                             },
                           ),
-                          Text(
-                            _readMangaBloc?.chapter.toString().padLeft(3, '0'),
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18),
+                          SizedBox(
+                            width: 40,
+                            // height: 45,
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18
+                              ),
+                              keyboardType: TextInputType.number,
+                              controller: TextEditingController(
+                                  text: (_readMangaBloc?.chapter.toString().padLeft(3, '0') ?? 0)),
+                              onSubmitted: (String value) async {
+                                setState(() {
+                                  _readMangaBloc.add(ReadMangaSubmitChapter(int.parse(value)));
+                                });
+                              },
+                            ),
                           ),
                           IconButton(
                             icon: const Icon(Icons.arrow_right),
@@ -113,7 +131,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   }
 
   Widget buildImgManga(ImgManga img, int index) {
-    print('Link image: ${img.url}');
+    // print('Link image: ${img.url}');
     return Container(
         child: Row(
           children: [

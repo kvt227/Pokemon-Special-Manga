@@ -25,3 +25,9 @@ class ReadMangaNextChapter extends ReadMangaEvent {
 class ReadMangaPreviousChapter extends ReadMangaEvent {
   ReadMangaPreviousChapter();
 }
+
+class ReadMangaSubmitChapter extends ReadMangaEvent {
+  final int chapter;
+
+  ReadMangaSubmitChapter(this.chapter);
+}
