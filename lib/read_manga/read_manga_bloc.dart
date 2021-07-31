@@ -5,6 +5,8 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart';
+import 'package:pokemon_special_app/database/cache_table.dart';
+import 'package:pokemon_special_app/model/cache_manga.dart';
 import 'package:pokemon_special_app/model/image_manga.dart';
 
 part 'read_manga_event.dart';
@@ -13,9 +15,21 @@ part 'read_manga_state.dart';
 class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
   ReadMangaBloc() : super(ReadMangaInitial());
 
+  CacheMangaTable _cacheTable = CacheMangaTable();
   List<ImgManga> listImg = <ImgManga>[];
-  final templateUrl = 'https://www.pokemonspecial.com/2014/06/chapter-';
-  int chapter = 4;
+  int chapter = 234;
+  int _currentId = 1;
+
+  final _templateUrl = 'https://www.pokemonspecial.com/2014/06/chapter-';
+  final _mangaName = 'Pokemon Special';
+  final _listIgnore = [
+    'home.png',
+    'top.png',
+    'center.png',
+    'bottom.png',
+    'next.png',
+    'prev.png',
+  ];
 
   @override
   Stream<ReadMangaState> mapEventToState(
@@ -63,6 +77,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
 
     try {
       chapter++;
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
@@ -81,6 +96,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
         chapter = 1;
       }
 
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
@@ -94,6 +110,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
 
     try {
       chapter = event.chapter;
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
@@ -106,7 +123,17 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
 
     try {
       listImg.clear();
-      String url = templateUrl + chapter.toString().padLeft(3, '0') + '.html';
+
+      var currentManga =  await _cacheTable.selectById(_currentId);
+      // Trường hợp tại bảng cache chưa tồn tại truyện đang đọc
+      if (currentManga == null) {
+        currentManga = CacheManga(mangaName: _mangaName, chapter: chapter);
+        _cacheTable.insert(currentManga);
+      }
+
+      chapter = currentManga.chapter;
+
+      String url = _templateUrl + chapter.toString().padLeft(3, '0') + '.html';
       if (chapter == 1) {
         url = 'https://www.pokemonspecial.com/2013/12/chapter-001.html';
       }
@@ -120,8 +147,15 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
         try {
           String url = tr.attributes['src'];
           var urlSplit = url.split('/');
+
           String fileName = urlSplit[urlSplit.length - 1];
-          if (int.tryParse(fileName.split('.')[0]) != null) {
+
+          if (urlSplit[0] != 'https:' || _listIgnore.contains(fileName)) {
+            continue;
+          }
+
+          // Từ chap 234 đến chap 364 là truyện scan và được đặt tên file bao gồm chữ bên trong
+          if ((chapter > 233 && chapter < 365) || int.tryParse(fileName.split('.')[0]) != null) {
             listImg.add(ImgManga(url: tr.attributes['src']));
           }
         } catch (e) {}

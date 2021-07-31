@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:pokemon_special_app/database/pokemon_manga_db.dart';
 import 'package:pokemon_special_app/read_manga/read_manga_screen.dart';
 import 'package:pokemon_special_app/widget/initial_bloc_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PokemonMangaDatabase.instance.init();
   HttpOverrides.global = new MyHttpOverrides();
   runApp(MyApp());
 }

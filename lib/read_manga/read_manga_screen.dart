@@ -10,23 +10,25 @@ class ReadMangaScreen extends StatefulWidget {
 }
 
 class _ReadMangaScreenState extends State<ReadMangaScreen> {
-
   ReadMangaBloc _readMangaBloc;
-  // final txtChapter = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _readMangaBloc = BlocProvider.of<ReadMangaBloc>(context);
+    _readMangaBloc.add(ReadMangaStarted());
+    _fetchData();
+  }
 
   @override
   void initState() {
-    _readMangaBloc = BlocProvider.of<ReadMangaBloc>(context);
-    _readMangaBloc.add(ReadMangaStarted());
-    // txtChapter.addListener(_changeChapter);
-    _fetchData();
     super.initState();
   }
 
   @override
   void dispose() {
-    // txtChapter.dispose();
     super.dispose();
+    _readMangaBloc.close();
   }
 
   void _fetchData() {
@@ -54,7 +56,24 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
               }
               if (state is ReadMangaDataFailed) {
                 return Center(
-                  child: Text('Error'),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text('Error'),
+                      Container(
+                        height: 5,
+                      ),
+                      OutlinedButton(
+                          onPressed: () {
+                            setState(() {
+                              _fetchData();
+                            });
+                          },
+                          child: Text('Reload')
+                      )
+                    ],
+                  ),
                 );
               }
 
@@ -84,7 +103,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18
                               ),
-                              keyboardType: TextInputType.number,
+                              //keyboardType: TextInputType.number,
                               controller: TextEditingController(
                                   text: (_readMangaBloc?.chapter.toString().padLeft(3, '0') ?? 0)),
                               onSubmitted: (String value) async {
@@ -131,7 +150,7 @@ class _ReadMangaScreenState extends State<ReadMangaScreen> {
   }
 
   Widget buildImgManga(ImgManga img, int index) {
-    // print('Link image: ${img.url}');
+    //print('Link image: ${img.url}');
     return Container(
         child: Row(
           children: [
