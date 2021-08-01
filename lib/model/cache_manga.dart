@@ -6,7 +6,7 @@ class CacheManga {
   int chapter;
   String mangaName;
 
-  CacheManga({@required mangaName, @required this.chapter});
+  CacheManga({@required mangaName, @required this.chapter, this.id});
 
   CacheManga.fromData(id, mangaName, chapter) {
     this.id = id;

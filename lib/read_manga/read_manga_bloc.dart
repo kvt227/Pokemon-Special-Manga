@@ -77,7 +77,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
 
     try {
       chapter++;
-      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter, id: _currentId));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
@@ -96,7 +96,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
         chapter = 1;
       }
 
-      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter, id: _currentId));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
@@ -110,7 +110,7 @@ class ReadMangaBloc extends Bloc<ReadMangaEvent, ReadMangaState> {
 
     try {
       chapter = event.chapter;
-      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter));
+      await _cacheTable.update(CacheManga(mangaName: _mangaName, chapter: chapter, id: _currentId));
       await getImage();
       yield ReadMangaDataFetched();
     } catch (ex) {
