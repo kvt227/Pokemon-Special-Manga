@@ -21,8 +21,11 @@ class PokemonMangaDatabase {
   ];
 
   init() async {
+    var path = join(await getDatabasesPath(), DB_NAME);
+    print('Path: $path');
+
     _database = await openDatabase(
-      join(await getDatabasesPath(), DB_NAME),
+      path,
       onCreate: (db, version) {
         initScript.forEach((script) async => await db.execute(script));
       },
